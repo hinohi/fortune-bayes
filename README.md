@@ -5,6 +5,14 @@
 * https://twitter.com/Ototo_/status/1631196085757829120
 * http://www.sci.hyogo-u.ac.jp/hammer/etc/fortune/fortune_Trial.html
 
+## ターミナルで遊ぶ
+
+```
+cargo run --bin=play_tty
+```
+
+![](images/tty_ss.png)
+
 ## p=(0/5, 1/5, 2/5, 3/5, 4/5, 5/5) が来る確率が常に一様
 
 順次くじを引いて、ベイズを更新して「今 submit すると得られるポイントの期待値は？」を計算する。
