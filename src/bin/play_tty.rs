@@ -1,4 +1,4 @@
-use fortune_bayes::{FFFortuneMachine, FortuneGame, FortuneGameParameters};
+use fortune_bayes::{Bayes1, FFFortuneMachine, FortuneGame, FortuneGameParameters};
 use rand::SeedableRng;
 use rand_pcg::Mcg128Xsl64;
 use std::io::{stdin, stdout, BufRead, Write};
@@ -38,6 +38,7 @@ fn main() {
     let mut stdout = stdout().lock();
 
     let mut game = FortuneGame::new(&mut rng, &mut fff_m, params);
+    let mut bayes = Bayes1::uniform();
     while game.current_turn < game.params.max_turn {
         let r = game.draw(&mut rng);
         let lottery = game.lottery().unwrap();
@@ -50,6 +51,11 @@ fn main() {
             100.0 * lottery.win_count as f64 / lottery.total_count as f64,
         )
         .unwrap();
+        bayes.new_draw(r);
+        let (i, gain) = bayes.submit_expect(params);
+        writeln!(stdout, "Bayes say: {} is best, get {}", i, gain).unwrap();
+        writeln!(stdout, "Bayes internal: {:?}", bayes.p).unwrap();
+
         match read_input(&mut stdin, &mut stdout) {
             UserInput::Draw => (),
             UserInput::Submit(p) => {
@@ -57,10 +63,12 @@ fn main() {
                 if r {
                     writeln!(stdout, "WIN").unwrap();
                 } else {
-                    writeln!(stdout, "LOSE, ans is {}", (p * 5.0).round()).unwrap();
+                    writeln!(stdout, "LOSE, ans is {}/5", (p * 5.0).round()).unwrap();
                 }
                 writeln!(stdout, "point = {}", game.current_point).unwrap();
                 writeln!(stdout).unwrap();
+
+                bayes = Bayes1::uniform();
             }
         }
     }
